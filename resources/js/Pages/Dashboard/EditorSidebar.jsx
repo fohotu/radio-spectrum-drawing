@@ -1,11 +1,18 @@
 import React,{ useState, useRef, useEffect  } from 'react';
-import { Plus, Save, FileUp } from "lucide-react";
+import { Plus, Save, FileUp,Trash2, Copy } from "lucide-react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export default function EditorSidebar(props) {
 
-    const { title, setTitle, page, setPage, element, updateField,addElement } = props;
+    const { title, setTitle,
+         page, setPage, 
+         element, updateField,
+         addElement,selecttedElement,
+         allElements,setElements,deleteElement,copyElement } = props;
+
+
+    
     const [openAdd, setOpenAdd] = useState(false);    
     const add_ref = useRef(null);
     const[category,setCategory] = useState([
@@ -33,7 +40,340 @@ export default function EditorSidebar(props) {
         }, []);
 
 
-         function exportPDF() {
+    function visible(el_class = "", cond = false) {
+        const elements = document.querySelectorAll(`.${el_class}`);
+
+        elements.forEach(el => {
+            el.style.display = cond ? "" : "none";
+        });
+    }  
+
+// render pdf 
+
+function renderCell1(pdf, el, scaleX, scaleY) {
+    const x = el.x * scaleX;
+    const y = el.y * scaleY;
+    const w = el.width * scaleX;
+    const h = el.height * scaleY;
+
+    // =========================
+    // 🎨 BACKGROUND
+    // =========================
+    if (el.bgColor) {
+        pdf.setFillColor(el.bgColor);
+        pdf.rect(x, y, w, h, "F");
+    }
+
+    // =========================
+    // 🔲 BORDER
+    // =========================
+    if (el.borderBox) {
+        pdf.setDrawColor(el.borderBoxColor || "#000000");
+        pdf.setLineWidth(0.3);
+        pdf.rect(x, y, w, h, "S");
+    }
+
+    // =========================
+    // 📦 TEXT
+    // =========================
+    pdf.setFontSize(el.fontSize || 14);
+    pdf.setTextColor(el.textColor || "#000");
+
+    let fontStyle = "normal";
+    if (el.bold && el.italic) fontStyle = "bolditalic";
+    else if (el.bold) fontStyle = "bold";
+    else if (el.italic) fontStyle = "italic";
+
+    pdf.setFont("helvetica", fontStyle);
+
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+
+    pdf.text(el.label || "", cx, cy, {
+        align: "center",
+        baseline: "middle",
+    });
+}
+
+function renderCelltest(pdf, el, scale) {
+    const x = el.x * scale;
+    const y = el.y * scale;
+    const w = el.width * scale;
+    const h = el.height * scale;
+
+    // =========================
+    // 🎨 BACKGROUND
+    // =========================
+    if (el.bgColor) {
+        pdf.setFillColor(el.bgColor);
+        pdf.rect(x, y, w, h, "F");
+    }
+
+    // =========================
+    // 🔲 BORDER (СТАБИЛЬНЫЙ)
+    // =========================
+    if (el.borderBox) {
+        pdf.setDrawColor(el.borderBoxColor || "#000000");
+        pdf.setLineWidth(0.5);      // 👈 важно
+        pdf.setLineJoin("miter");   // 👈 углы норм
+
+        pdf.rect(x, y, w, h, "S");
+    }
+
+    // =========================
+    // 📦 TEXT STYLE
+    // =========================
+    pdf.setFontSize(el.fontSize || 10);
+    pdf.setTextColor(el.textColor || "#000000");
+
+    let fontStyle = "normal";
+    if (el.bold && el.italic) fontStyle = "bolditalic";
+    else if (el.bold) fontStyle = "bold";
+    else if (el.italic) fontStyle = "italic";
+
+    // ⚠️ ВАЖНО: потом заменишь на Roboto для кириллицы
+    pdf.setFont("Roboto", fontStyle);
+
+    // =========================
+    // 📍 CENTER TEXT
+    // =========================
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+
+    pdf.text(el.label || "", cx, cy, {
+        align: "center",
+        baseline: "middle",
+    });
+
+
+    // =========================
+    // 📊 FR TEXT (begin / end)
+    // =========================
+    const offsetX = el.fr_text_left || 0;
+    const offsetY = el.fr_text_top || -5;
+
+    pdf.setFontSize(el.fr_text_size || 12);
+    pdf.setTextColor(el.fr_text_color || "#000");
+
+    if (el.fr_text_position === "top") {
+        if (el.visible_begin) {
+            pdf.text(
+                String(el.fr_begin ?? ""),
+                x + offsetX,
+                y + offsetY
+            );
+        }
+
+        if (el.visible_end) {
+            pdf.text(
+                String(el.fr_end ?? ""),
+                x + w + offsetX,
+                y + offsetY
+            );
+        }
+    } else {
+        if (el.visible_begin) {
+            pdf.text(
+                String(el.fr_begin ?? ""),
+                x + offsetX,
+                y + h + Math.abs(offsetY)
+            );
+        }
+
+        if (el.visible_end) {
+            pdf.text(
+                String(el.fr_end ?? ""),
+                x + w + offsetX,
+                y + h + Math.abs(offsetY)
+            );
+        }
+    }
+}
+
+function renderCell(pdf, el, scale) {
+    const x = el.x * scale;
+    const y = el.y * scale;
+    const w = el.width * scale;
+    const h = el.height * scale;
+
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+
+    pdf.setFont("Roboto");
+    pdf.setFontSize(el.fontSize || 14);
+
+    const angle = el.rotate || 0;
+
+    if (angle === 0) {
+        pdf.text(el.label, cx, cy, {
+            align: "center",
+            baseline: "middle",
+        });
+        return;
+    }
+
+    // 🔥 jsPDF SAFE rotate mode
+    pdf.text(el.label, cx, cy, {
+        align: "center",
+        baseline: "middle",
+        angle: -angle,
+    });
+}
+
+async function loadFontBase64(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = reader.result.split(",")[1];
+            resolve(base64);
+        };
+        reader.readAsDataURL(blob);
+    });
+}
+
+
+async function exportPDFtest() {
+    const doc = new jsPDF();
+
+    const robotoBase64 = await loadFontBase64(
+        "/fonts/google/roboto/static/Roboto-Regular.ttf"
+    );
+
+    doc.addFileToVFS("Roboto.ttf", robotoBase64);
+    doc.addFont("Roboto.ttf", "Roboto", "normal", "Identity-H");
+
+    // 🔥 ВАЖНО: используем ИМЯ "Roboto"
+    doc.setFont("Roboto");
+    doc.setFontSize(14);
+
+    doc.text("Привет мир!", 10, 10);
+
+    doc.save("document.pdf");
+}
+
+async function exportPDF2() {
+    print_started();
+
+    const robotoBase64 = await loadFontBase64(
+        "/fonts/google/roboto/static/Roboto-Regular.ttf"
+    );
+
+    const sizes = {
+        A4: { w: 210, h: 297 },
+        A3: { w: 297, h: 420 },
+    };
+
+    const current = sizes[page.format];
+
+    const widthMM =
+        page.orientation === "portrait"
+            ? current.w
+            : current.h;
+
+    const heightMM =
+        page.orientation === "portrait"
+            ? current.h
+            : current.w;
+
+    const editor = document.getElementById("editor");
+
+    const scale = widthMM / editor.offsetWidth;
+
+    const pdf = new jsPDF({
+        orientation: page.orientation === "portrait" ? "p" : "l",
+        unit: "mm",
+        format: [widthMM, heightMM],
+    });
+
+    pdf.addFileToVFS("Roboto.ttf", robotoBase64);
+    pdf.addFont("Roboto.ttf", "Roboto", "normal", "Identity-H");
+
+    pdf.setFont("Roboto");
+
+    allElements.forEach((el) => {
+        renderCell(pdf, el, scale);
+    });
+
+    pdf.save(`${title || "document"}.pdf`);
+
+    print_finished();
+
+}
+
+    function exportPDF() {
+        
+        print_started();
+
+        const element = document.getElementById("editor");
+        
+        const sizes = {
+            A4: { w: 210, h: 297 },
+            A3: { w: 297, h: 420 },
+        };
+
+        const current = sizes[page.format];
+
+        const widthMM =
+            page.orientation === "portrait"
+                ? current.w
+                : current.h;
+
+        const heightMM =
+            page.orientation === "portrait"
+                ? current.h
+                : current.w;
+
+        setTimeout(() => {
+            print_started();
+            const element = document.getElementById("editor");
+
+            html2canvas(element, {
+                scale: window.devicePixelRatio * page.zoom,
+                useCORS: true,
+                backgroundColor: "#fff",
+                letterRendering:false,
+            }).then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+
+                const pdf = new jsPDF({
+                    orientation: page.orientation === "portrait" ? "p" : "l",
+                    unit: "mm",
+                    format: [widthMM, heightMM],
+                });
+
+                let imgWidth = widthMM;
+                let imgHeight = (canvas.height * widthMM) / canvas.width;
+
+                if (imgHeight > heightMM) {
+                    imgHeight = heightMM;
+                    imgWidth = (canvas.width * heightMM) / canvas.height;
+                }
+
+
+                pdf.addImage(
+                    imgData,
+                    "PNG",
+                    (widthMM - imgWidth) / 2,
+                    (heightMM - imgHeight) / 2,
+                    imgWidth,
+                    imgHeight
+                );
+
+                pdf.save(`${title || "document"}.pdf`);
+
+                print_finished();
+            });
+
+        }, 100); // 
+    }
+ 
+
+    function exportPDF1() {
+        
+        print_started();
         const element = document.getElementById("editor");
         const sizes = {
             A4: { w: 210, h: 297 },
@@ -52,10 +392,19 @@ export default function EditorSidebar(props) {
                 ? current.h
                 : current.w;
 
+        /*        
         html2canvas(element, {
             scale: 2 * page.zoom,
             useCORS: true,
-        }).then((canvas) => {
+        })
+        */
+        
+        html2canvas(element, {
+            scale: window.devicePixelRatio * page.zoom,
+            useCORS: true,
+            backgroundColor: "#fff"
+        })
+        .then((canvas) => {
             const imgData = canvas.toDataURL("image/png");
 
             const pdf = new jsPDF({
@@ -87,9 +436,39 @@ export default function EditorSidebar(props) {
                 imgHeight
             );
 
+             
+
             pdf.save(`${title || "document"}.pdf`);
+            print_finished();
         });
+
+        
+
     }
+
+    function print_started(){
+        visible("disable-on-pdf");
+        setElements(prev =>
+                prev.map(el => ({
+                    ...el,
+                    isPrinting: true
+                }))
+            );
+    }
+
+    function print_finished(){
+        
+        setElements(prev =>
+            prev.map(el => ({
+                ...el,
+                isPrinting: false
+            }))
+        );
+
+        visible("disable-on-pdf",true);
+    }
+
+    
 
     return (
             <>
@@ -211,156 +590,301 @@ export default function EditorSidebar(props) {
                     </div>
 
                      {/* 2. Элемент */}
-                    <div className="border-t border-gray-700 pt-4">
-                            {/* Label */}
-                            <div className="grid grid-cols-2 gap-2">
-                                <label className="text-sm text-gray-400">Label</label>
-                                <input
-                                    value={element.label}
-                                    onChange={(e) => updateField("label", e.target.value)}
-                                    className="w-full p-2 bg-gray-700 rounded"
-                                />
-                            </div>
-                            
 
-                            {/* Position */}
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">Position X</label>
-                                <input
-                                    type="number"
-                                    value={element.x}
-                                    onChange={(e) => updateField("x", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="X"
-                                />
-                             </div>
-                             <div className="grid grid-cols-2 gap-2 pt-4">   
-                                <label className="text-sm text-gray-400 ">Position Y</label>
-                                <input
-                                    type="number"
-                                    value={element.y}
-                                    onChange={(e) => updateField("y", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="Y"
-                                />
-                            </div>
+                    {
+                        selecttedElement ?
+                             <div className="border-t border-gray-700 pt-4">
+                                <div className="flex justify-end gap-2 pb-5">
+                                        <button onClick={()=>deleteElement(selecttedElement)} className="flex flex-col items-center1 justify-center gap-1 bg-gray-700 hover:bg-red-600 rounded-lg p-3 transition">
+                                            <Trash2 size={18} />
+                                            <span className="text-xs">Delete</span>
+                                        </button>
 
-                            {/* Size */}
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">Width</label>
-                                <input
-                                    type="number"
-                                    value={element.w}
-                                    onChange={(e) => updateField("w", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="Width"
-                                />
-                                <label className="text-sm text-gray-400">Height</label>
-                                <input
-                                    type="number"
-                                    value={element.h}
-                                    onChange={(e) => updateField("h", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="Height"
-                                />
-                            </div>
+                                        <button onClick={()=>copyElement(selecttedElement)} className="flex flex-col items-center justify-center1 gap-1 bg-gray-700 hover:bg-gray-600 rounded-lg p-3 transition">
+                                            <Copy size={18} />
+                                            <span className="text-xs">Copy</span>
+                                        </button>
+                                    </div>
+                                    {/* Label */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <label className="text-sm text-gray-400">Label</label>
+                                        <input
+                                            value={selecttedElement?.label ?? ""}
+                                            onChange={(e) => updateField("label", e.target.value)}
+                                            className="w-full p-2 bg-gray-700 rounded"
+                                        />
+                                    </div>
 
-                            {/* Colors */}
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">Background Color</label>
-                                <input
-                                    type="color"
-                                    value={element.bgColor}
-                                    onChange={(e) => updateField("bgColor", e.target.value)}
-                                    className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">Text Color</label>
-                                <input
-                                    type="color"
-                                    value={element.textColor}
-                                    onChange={(e) => updateField("textColor", e.target.value)}
-                                    className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
-                                />
-                            </div>
+                                    <div>
+                                        <label className="text-sm text-gray-400">Label Left Position</label>
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="100"
+                                            value={selecttedElement?.label_left_position ?? ""}
+                                            onChange={(e) => updateField("label_left_position", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
 
-                            {/* Font size */}
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">Font Size</label>
+                                    <div>
+                                        <label className="text-sm text-gray-400">Label Top Position</label>
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="100"
+                                            value={selecttedElement?.label_top_position ?? ""}
+                                            onChange={(e) => updateField("label_top_position", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                    {/* Rotate */}
+                                    <div>
+                                        <label className="text-sm text-gray-400">Rotate Label {selecttedElement?.rotate ?? 0}</label>
+                                        <input
+                                            type="range"
+                                            min="-180"
+                                            max="180"
+                                            value={selecttedElement?.rotate ?? ""}
+                                            onChange={(e) => updateField("rotate", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-4 gap-2 mt-5">
+                                        <label className="text-sm text-gray-400">Bold</label>
+                                        <input
+                                            type="checkbox"
+                                            value={selecttedElement?.bold ?? ""}
+                                            onChange={(e) =>{ updateField("bold", e.target.checked) } }
+                                            className="p-2 bg-gray-700 rounded"
+                                        />
+                                        <label className="text-sm text-gray-400">Cursor {selecttedElement?.italic ?? "1"}</label>
+                                        <input
+                                            type="checkbox"
+                                            value={selecttedElement?.italic ?? ""}
+                                            onChange={(e) => updateField("italic", e.target.checked)}
+                                            className="p-2 bg-gray-700 rounded"
+                                        />
+                                    </div>
+                                    
+
+                                    {/* Position */}
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">Position X</label>
+                                        <input
+                                            type="number"
+                                            value={Number(parseInt(selecttedElement?.x || 0))}
+                                            onChange={(e) => updateField("x", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="X"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 pt-4">   
+                                        <label className="text-sm text-gray-400 ">Position Y</label>
+                                        <input
+                                            type="number"
+                                            value={Number(parseInt(selecttedElement?.y || 0))}
+                                            onChange={(e) => updateField("y", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="Y"
+                                        />
+                                    </div>
+
+                                    {/* Size */}
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">Width</label>
+                                        <input
+                                            type="number"
+                                            value={Number(parseInt(selecttedElement?.width || 0))}
+                                            onChange={(e) => {
+                                                    updateField("width", Number(e.target.value))
+                                            }}
+                                        // onChange={elements.find(el => el.id === selecttedElement?.id)?.w ?? ""}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="Width"
+                                        />
+                                        <label className="text-sm text-gray-400">Height</label>
+                                        <input
+                                            type="number"
+                                            value={Number(parseInt(selecttedElement?.height || 0))}
+                                            onChange={(e) => updateField("height", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="Height"
+                                        />
+                                    </div>
+
+                                    {/* Colors */}
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">Background Color</label>
+                                        <input
+                                            type="color"
+                                            value={selecttedElement?.bgColor ?? ""}
+                                            onChange={(e) => updateField("bgColor", e.target.value)}
+                                            className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">Text Color</label>
+                                        <input
+                                            type="color"
+                                            value={selecttedElement?.textColor ?? ""}
+                                            onChange={(e) => updateField("textColor", e.target.value)}
+                                            className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
+                                        />
+                                    </div>
+
+                                    {/* Font size */}
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">Font Size</label>
+                                        
+                                        <input
+                                            type="number"
+                                            value={selecttedElement?.fontSize ?? ""}
+                                            onChange={(e) => updateField("fontSize", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="Font Size"
+                                        />
+                                    </div>
+
+                                    
+
+                                    {/* Frame text */}
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        <label className="text-sm text-gray-400">
+                                            RF Begin
+                                            <input type="checkbox"  
+                                            checked={selecttedElement?.visible_begin ?? false}
+                                            onChange={(e) =>{ updateField("visible_begin", e.target.checked) } }
+                                            className="ml-2 p-2 bg-gray-700 rounded"
+
+                                            />
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={selecttedElement?.fr_begin ?? ""}
+                                            onChange={(e) => updateField("fr_begin", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="fr_begin"
+                                        />
+                                        <label className="text-sm text-gray-400">RF End
+                                            <input type="checkbox"  
+                                            checked={selecttedElement?.visible_end ?? false}
+                                            onChange={(e) =>{ updateField("visible_end", e.target.checked) } }
+                                            className="ml-5 p-2 bg-gray-700 rounded"
+
+                                            />
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={selecttedElement?.fr_end ?? ""}
+                                            onChange={(e) => updateField("fr_end", Number(e.target.value))}
+                                            className="p-2 bg-gray-700 rounded"
+                                            placeholder="fr_end"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        {/* Frame text size */}
+                                        <label className="text-sm text-gray-400">RF Font Size</label>
+                                        <input
+                                            type="number"
+                                            value={selecttedElement?.fr_text_size ?? ""}
+                                            onChange={(e) =>
+                                                updateField("fr_text_size", Number(e.target.value))
+                                            }
+                                            className="w-full p-2 bg-gray-700 rounded"
+                                            placeholder="Text Size"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        {/* Frame text color */}
+                                        <label className="text-sm text-gray-400">RF Text Color</label>
+                                        <input
+                                            type="color"
+                                            value={selecttedElement?.fr_text_color ?? ""}
+                                            onChange={(e) =>
+                                                updateField("fr_text_color", e.target.value)
+                                            }
+                                            className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        {/* Frame text color */}
+                                        <label className="text-sm text-gray-400">RF Text Position</label>
+                                        <select 
+                                        className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
+                                        onChange={(e) =>
+                                                updateField("fr_text_position", e.target.value)
+                                        }
+                                        value={selecttedElement?.fr_text_position ?? ""}>
+                                            <option value="top">Top</option>
+                                            <option value="bottom">Bottom</option>
+                                        </select>
+                                    
+                                    </div>
+
+                                     <div>
+                                     
+
+                                        <label className="text-sm text-gray-400">Show Fr Distinction
+                                            <input type="checkbox"  
+                                            checked={selecttedElement?.fr_distinction ?? false}
+                                            onChange={(e) =>{ updateField("fr_distinction", e.target.checked) } }
+                                            className="ml-5 p-2 bg-gray-700 rounded"
+
+                                            />
+                                        </label>
+                                    </div>
+                                    {/* Rotate */}
+                                    <div>
+                                        <label className="text-sm text-gray-400">Fr Text Rotate {selecttedElement?.fr_text_rotate ?? 0}</label>
+                                        <input
+                                            type="range"
+                                            min="-180"
+                                            max="180"
+                                            value={selecttedElement?.fr_text_rotate ?? ""}
+                                            onChange={(e) => updateField("fr_text_rotate", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm text-gray-400">Fr Text left {selecttedElement?.fr_text_left ?? 0}</label>
+                                        <input
+                                            type="range"
+                                            min="-180"
+                                            max="180"
+                                            value={selecttedElement?.fr_text_left ?? ""}
+                                            onChange={(e) => updateField("fr_text_left", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="text-sm text-gray-400">Fr Text Top {selecttedElement?.fr_text_top ?? 0}</label>
+                                        <input
+                                            type="range"
+                                            min="-180"
+                                            max="180"
+                                            value={selecttedElement?.fr_text_top ?? ""}
+                                            onChange={(e) => updateField("fr_text_top", Number(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+
+                                   
                                 
-                                <input
-                                    type="number"
-                                    value={element.fontSize}
-                                    onChange={(e) => updateField("fontSize", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="Font Size"
-                                />
-                            </div>
 
-                            {/* Rotate */}
-                            <div>
-                                <label className="text-sm text-gray-400">Rotate</label>
-                                <input
-                                    type="range"
-                                    min="-180"
-                                    max="180"
-                                    value={element.rotate}
-                                    onChange={(e) => updateField("rotate", Number(e.target.value))}
-                                    className="w-full"
-                                />
+                                
                             </div>
+                        :<></>
+                    }        
 
-                            {/* Frame text */}
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                <label className="text-sm text-gray-400">RF Begin</label>
-                                <input
-                                    type="number"
-                                    value={element.fr_begin}
-                                    onChange={(e) => updateField("fr_begin", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="fr_begin"
-                                />
-                                <label className="text-sm text-gray-400">RF End</label>
-                                <input
-                                    type="number"
-                                    value={element.fr_end}
-                                    onChange={(e) => updateField("fr_end", Number(e.target.value))}
-                                    className="p-2 bg-gray-700 rounded"
-                                    placeholder="fr_end"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                 {/* Frame text size */}
-                                <label className="text-sm text-gray-400">RF Font Size</label>
-                                <input
-                                    type="number"
-                                    value={element.fr_text_size}
-                                    onChange={(e) =>
-                                        updateField("fr_text_size", Number(e.target.value))
-                                    }
-                                    className="w-full p-2 bg-gray-700 rounded"
-                                    placeholder="Text Size"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 pt-4">
-                                 {/* Frame text color */}
-                                <label className="text-sm text-gray-400">RF Text Color</label>
-                                <input
-                                    type="color"
-                                    value={element.fr_text_color}
-                                    onChange={(e) =>
-                                        updateField("fr_text_color", e.target.value)
-                                    }
-                                    className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
-                                />
-                            </div>
-                           
-
-                           
-                    </div>
+                   
 
                 </div>
                

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RadioSpectrumController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,5 +29,21 @@ Route::middleware('auth')->group(function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard/Index');
 });
+
+Route::get('/radiospectrum1', function () {
+    return Inertia::render('Radiospectrum/Main');
+});
+
+Route::get('/radiospectrum', [RadioSpectrumController::class, 'index'])->name('radiospectrum.index');
+Route::get('/radiospectrum/create', [RadioSpectrumController::class, 'create'])->name('radiospectrum.create');
+Route::post('/radiospectrum/copy', [RadioSpectrumController::class, 'copy'])->name('radiospectrum.copy');
+Route::post('/radiospectrum/save', [RadioSpectrumController::class, 'store'])->name('radiospectrum.save');
+
+Route::get('/radiospectrum/{id}/edit', [RadioSpectrumController::class, 'edit'])->name('radiospectrum.edit');
+Route::post('/radiospectrum/update/{id}', [RadioSpectrumController::class, 'update'])->name('radiospectrum.update');
+// routes/web.php
+
+Route::delete('/radiospectrum/{id}', [RadioSpectrumController::class, 'destroy'])
+    ->name('radiospectrum.destroy');
 
 require __DIR__.'/auth.php';

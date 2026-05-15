@@ -66,6 +66,11 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                                         >
                                             Profile
                                         </Dropdown.Link>
+                                         <Dropdown.Link
+                                            href={route('radiospectrum.index')}
+                                        >
+                                            My Documents
+                                        </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
@@ -163,7 +168,7 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
             </nav>
 
             {header && (
-                <header className="bg-white shadow">
+                <header className="bg-white shadow" style={{"display":"none"}}>
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
@@ -179,12 +184,38 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
 
            <main className="flex flex-col lg:flex-row gap-4 p-4">
                 {/* Левая часть */}
-                <div className="flex-1 bg-gray-800 p-4 rounded shadow-lg">
+                <div className="flex-1 bg-gray-800 p-4 rounded shadow-lg"
+               
+                >
                     {children}
                 </div>
 
                 {/* Правая панель */}
-                <div className="w-full lg:w-80 bg-gray-800 p-4 rounded shadow-lg">
+                <div style={{"display":"none"}} className="w-full lg:w-[300px] shrink-0 bg-gray-800 p-4 rounded shadow-lg">
+                    <h3 className="text-lg font-semibold mb-3 text-gray-200">
+                        Tools
+                    </h3>
+
+                    <div className="space-y-2">
+                        {sidebar}
+                    </div>
+                </div>
+
+                {/* Правая панель */}
+                <div
+                    className="
+                        w-full
+                        lg:w-[300px]
+                        shrink-0
+                        bg-gray-800
+                        p-4
+                        rounded
+                        shadow-lg
+
+                        h-screen
+                        overflow-y-auto
+                    "
+                >
                     <h3 className="text-lg font-semibold mb-3 text-gray-200">
                         Tools
                     </h3>
