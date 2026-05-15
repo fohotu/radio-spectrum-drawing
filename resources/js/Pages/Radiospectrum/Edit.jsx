@@ -26,6 +26,7 @@ function Edit({ document }) {
         orientation: "portrait",
         zoom: 1,
         isPrinting: false,
+        grid:true,
     });
 
     const [frGroups, setFrGroups] = useState([]);
@@ -283,7 +284,7 @@ function Edit({ document }) {
                         height: `${height}px`,
                         transformOrigin: "center",
                         
-                        ...(page.isPrinting ? {} : {
+                        ...(page.isPrinting ? {} : (!page.grid) ? {} : {
                             backgroundImage: `
                                 linear-gradient(to right, rgba(0,0,0,0.08) 1px, transparent 1px),
                                 linear-gradient(to bottom, rgba(0,0,0,0.08) 1px, transparent 1px)

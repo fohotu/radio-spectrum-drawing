@@ -307,9 +307,36 @@ useEffect(() => {
 
             {/** */}
             {/* AUTO SAVE PANEL */}
-
 <div className="border border-gray-700 bg-gray-800 my-5">
+    <div className="grid grid-cols-1">
+         <label
+            className="
+                flex items-center gap-3
+                h-12 px-4
+                border-r border-gray-700
+                text-sm text-gray-200
+            "
+        >
 
+            <input
+                type="checkbox"
+                checked={page.grid}
+                onChange={(e) =>
+                    setPage({...page,grid:e.target.checked})
+                }
+                className="
+                    w-4 h-4
+                    accent-yellow-500
+                "
+            />
+
+            Include Grid
+
+        </label>
+    </div>
+</div>
+<div className="border border-gray-700 bg-gray-800 my-5">
+    
     <div className="grid grid-cols-2">
 
         {/* CHECKBOX */}
