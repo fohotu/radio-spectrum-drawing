@@ -3,7 +3,7 @@ import { Plus, Save, FileUp,Trash2, Copy } from "lucide-react";
 import SelectedRangeForm from "./SelectedRangeForm";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { router } from "@inertiajs/react";
+import { router,usePage } from "@inertiajs/react";
 
 function Sidebar(props) {
 
@@ -19,6 +19,7 @@ function Sidebar(props) {
     dirty,
   } = props;
 
+  const {translations} = usePage().props;
 
   const [openAdd, setOpenAdd] = useState(false);  
   const[category,setCategory] = useState([
@@ -316,7 +317,7 @@ function Sidebar(props) {
                 "
             />
 
-            Include Grid
+            {translations.system.include_grid}
 
         </label>
     </div>
@@ -506,7 +507,7 @@ function Sidebar(props) {
                     </div>
                     {/* 1. Формат */}
                     <div>
-                        <h3 className="text-sm mb-2 text-gray-400">Format</h3>
+                        <h3 className="text-sm mb-2 text-gray-400">{translations.system.format}</h3>
 
                         <div className="space-y-2">
                             <select
@@ -540,7 +541,7 @@ function Sidebar(props) {
 
                     {/* 2. Ориентация */}
                     <div>
-                        <h3 className="text-sm mb-2 text-gray-400">Orientation</h3>
+                        <h3 className="text-sm mb-2 text-gray-400">{translations.system.orientation}</h3>
 
                         <div className="space-y-2">
                             <select
@@ -564,8 +565,8 @@ function Sidebar(props) {
                                             hover:bg-gray-750
                                         "
                             >
-                                <option value="portrait">Portrait</option>
-                                <option value="landscape">Landscape</option>
+                                <option value="portrait">{translations.system.format_portrait}</option>
+                                <option value="landscape">{translations.system.format_landscape}</option>
                             </select>
                         </div>
                     </div>
@@ -573,7 +574,7 @@ function Sidebar(props) {
                     {/* 3. Zoom */}
                     <div>
                         <h3 className="text-sm mb-2 text-gray-400">
-                            Zoom ({Math.round(page.zoom * 100)}%)
+                            {translations.system.zoom} ({Math.round(page.zoom * 100)}%)
                         </h3>
 
                         <input

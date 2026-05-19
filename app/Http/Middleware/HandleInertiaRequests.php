@@ -34,6 +34,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'translations' => [
+                'system' => __('system'),
+                'pagination' => __('pagination'),
+            ],
         ];
     }
 }

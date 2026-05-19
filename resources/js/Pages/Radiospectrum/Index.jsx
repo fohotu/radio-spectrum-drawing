@@ -15,7 +15,7 @@ const submitSearch = (e) => {
     e.preventDefault();
 
     router.get(
-        "/radiospectrum",
+        "/dashboard",
         { search },
         {
             preserveState: true,
@@ -75,7 +75,7 @@ const submitSearch = (e) => {
             setSearch("");
 
             router.get(
-                "/radiospectrum",
+                "/dashboard",
                 {},
                 {
                     preserveState: true,
@@ -177,9 +177,7 @@ const submitSearch = (e) => {
                         </td>
 
                         <td className="border border-gray-600 px-6 py-4">
-
                             <div className="flex items-center justify-center gap-2">
-
                                 <Link
                                     href={`/radiospectrum/${document.id}/edit`}
                                     className="
@@ -192,7 +190,6 @@ const submitSearch = (e) => {
                                 >
                                     <Pencil size={16} />
                                 </Link>
-
                                 <Link
                                     href={`/radiospectrum/${document.id}`}
                                     method="delete"

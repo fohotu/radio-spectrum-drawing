@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import {element as DefaultElement} from "./Default";
+import { usePage } from "@inertiajs/react";
 export default function RangeForm(props) {
 
     const {setFrGroups,frGroups,pageWidth,closeCallback} = props;  
 
-    console.log(frGroups,'FRG');
+    const {translations} = usePage().props;
 
     const [rows, setRows] = useState([
        /* {
@@ -247,9 +248,11 @@ export default function RangeForm(props) {
 
     const saveData = () => {
         // пример данных
-       
+        
         const new_elements = layoutIntervals(rows);
         const cordinated = cordinate(new_elements);
+
+       // console.log(rows,new_elements,'-------',cordinated)
 
          if(groupHeadLine.label){
             cordinated.push(groupHeadLine);
@@ -294,7 +297,7 @@ export default function RangeForm(props) {
                                     value={groupHeadLine.label} 
                                     type="text" 
                                     className="border p-2 rounded w-full"
-                                    onChange={(e)=>setGroupHeadLine({...groupHeadLine,label:e.target.value})}
+                                    onChange={(e)=>{setGroupHeadLine({...groupHeadLine,label:e.target.value});console.log(groupHeadLine,'HEADLINE')}}
                                 />
                             </label>
                         </div>
@@ -317,14 +320,14 @@ export default function RangeForm(props) {
             
                     {/* Header */}
                     <div className="grid grid-cols-8 gap-2 font-semibold">
-                        <div>fr_begin</div>
-                        <div>fr_end</div>
-                        <div>Label</div>
-                        <div>Measure</div>
-                        <div>bgColor</div>
-                        <div>Order</div>
-                        <div>heightRow</div>
-                        <div>Action</div>
+                        <div>{translations.system.fr_begin}</div>
+                        <div>{translations.system.fr_end}</div>
+                        <div>{translations.system.label}</div>
+                        <div>{translations.system.measure}</div>
+                        <div>{translations.system.background_color}</div>
+                        <div>{translations.system.order}</div>
+                        <div>{translations.system.height_row}</div>
+                        <div>#</div>
                     </div>
 
                     {/* Rows */}
@@ -441,7 +444,7 @@ export default function RangeForm(props) {
 
                 <div>
                     <label className="block text-sm text-gray-300 mb-1">
-                        Headline
+                        {translations.system.headline}
                     </label>
 
                     <input
@@ -457,13 +460,19 @@ export default function RangeForm(props) {
                             outline-none
                             focus:border-blue-500
                         "
-                        onChange={(e)=>setGroupHeadLine({...groupHeadLine,label:e.target.value})}
+                        onChange={(e)=>{
+                            
+                            setGroupHeadLine({...groupHeadLine,label:e.target.value})
+                            console.log(groupHeadLine,'HEADLINE')
+                        }}
+
+                        
                     />
                 </div>
 
                 <div>
                     <label className="block text-sm text-gray-300 mb-1">
-                        Scale
+                        {translations.system.scale}
                     </label>
 
                     <input
@@ -506,14 +515,16 @@ export default function RangeForm(props) {
                     text-gray-300
                 "
             >
-                <div>fr_begin</div>
-                <div>fr_end</div>
-                <div>Label</div>
-                <div>Measure</div>
-                <div>bgColor</div>
-                <div>Order</div>
-                <div>heightRow</div>
-                <div className="text-center">Action</div>
+               
+
+                  <div>{translations.system.fr_begin}</div>
+                        <div>{translations.system.fr_end}</div>
+                        <div>{translations.system.label}</div>
+                        <div>{translations.system.measure}</div>
+                        <div>{translations.system.background_color}</div>
+                        <div>{translations.system.order}</div>
+                        <div>{translations.system.height_row}</div>
+                        <div>#</div>
             </div>
 
             {/* Rows */}
@@ -699,7 +710,7 @@ export default function RangeForm(props) {
                     transition
                 "
             >
-                Add
+                {translations.system.add}
             </button>
 
             <button
@@ -713,7 +724,7 @@ export default function RangeForm(props) {
                     transition
                 "
             >
-                Save
+                {translations.system.save}
             </button>
               <button
                 onClick={cancelData}
@@ -726,7 +737,7 @@ export default function RangeForm(props) {
                     transition
                 "
             >
-                Cancel
+                {translations.system.cancel}
             </button>
         </div>
     </div>

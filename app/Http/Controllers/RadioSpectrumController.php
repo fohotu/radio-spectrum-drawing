@@ -92,7 +92,7 @@ class RadioSpectrumController extends Controller
         $group = json_decode($request->group); 
         $document = json_decode($request->page);
 
-    
+     //   dd($group,$document);
 
 
         $document_model = new Document;
@@ -181,6 +181,11 @@ class RadioSpectrumController extends Controller
                                 $element_model->border_bottom_value = !empty($element->border_bottom_value) ? $element->border_bottom_value : 1;
                                 $element_model->border_left_value = !empty($element->border_left_value) ? $element->border_left_value: 1;
                                 $element_model->borderColor = !empty($element->borderColor) ? $element->borderColor : '#000000';
+                                 
+                                $element_model->order = !empty($element->order) ? $element->order : 1;
+                                $element_model->heightRow = !empty($element->heightRow) ? $element->heightRow : 100;
+                                
+   
 
                                 $element_model->save();    
                                 

@@ -102,6 +102,9 @@ return new class extends Migration {
             $table->integer('border_left_value')->default(1);
             $table->string('borderColor')->default('#000000');
 
+            $table->integer('heightRow')->default(100);
+            $table->integer('order')->default(1);
+
             $table->timestamps();
 
         });

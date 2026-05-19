@@ -3,6 +3,7 @@ import { Plus, Save, FileUp,Trash2, Copy } from "lucide-react";
 import SelectedRangeForm from "./SelectedRangeForm";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import {  usePage } from '@inertiajs/react';
 
 function SidebarUpdate(props) {
 
@@ -20,7 +21,7 @@ function SidebarUpdate(props) {
 
  
 
-
+  const { translations } = usePage().props;
   const [openAdd, setOpenAdd] = useState(false);  
   const[category,setCategory] = useState([
           {code: "title", label: "Заголовок"},
@@ -44,7 +45,7 @@ useEffect(() => {
             if (dirty && !saving) {
 
                 saveDocument();
-
+                
             }
 
         }, autoSaveDelay * 1000);
@@ -311,8 +312,8 @@ useEffect(() => {
     <div className="grid grid-cols-1">
          <label
             className="
-                flex items-center gap-3
-                h-12 px-4
+                flex items-center gap-1
+                h-12 px-2
                 border-r border-gray-700
                 text-sm text-gray-200
             "
@@ -330,7 +331,7 @@ useEffect(() => {
                 "
             />
 
-            Include Grid
+            { translations.system.include_grid }
 
         </label>
     </div>
@@ -343,8 +344,8 @@ useEffect(() => {
 
         <label
             className="
-                flex items-center gap-3
-                h-12 px-4
+                flex items-center gap-1
+                h-12 px-2
                 border-r border-gray-700
                 text-sm text-gray-200
             "
@@ -362,7 +363,7 @@ useEffect(() => {
                 "
             />
 
-            Auto Save
+            { translations.system.auto_save }
 
         </label>
 
@@ -574,8 +575,8 @@ useEffect(() => {
                         </div>
                     </div>
                     {/* 1. Формат */}
-                    <div>
-                        <h3 className="text-sm mb-2 text-gray-400">Format</h3>
+                    <div> 
+                        <h3 className="text-sm mb-2 text-gray-400">{ translations.system.format }</h3>
 
                         <div className="space-y-2">
                             <select
@@ -608,7 +609,7 @@ useEffect(() => {
 
                     {/* 2. Ориентация */}
                     <div>
-                        <h3 className="text-sm mb-2 text-gray-400">Orientation</h3>
+                        <h3 className="text-sm mb-2 text-gray-400">{translations.system.orientation}</h3>
 
                         <div className="space-y-2">
                             <select
@@ -631,8 +632,8 @@ useEffect(() => {
                                             hover:bg-gray-750
                                         "
                             >
-                                <option value="portrait">Portrait</option>
-                                <option value="landscape">Landscape</option>
+                                <option value="portrait">{translations.system.format_portrait}</option>
+                                <option value="landscape">{translations.system.format_landscape}</option>
                             </select>
                         </div>
                     </div>
@@ -640,7 +641,7 @@ useEffect(() => {
                     {/* 3. Zoom */}
                     <div>
                         <h3 className="text-sm mb-2 text-gray-400">
-                            Zoom ({Math.round(page.zoom * 100)}%)
+                            {translations.system.zoom} ({Math.round(page.zoom * 100)}%)
                         </h3>
 
                         <input

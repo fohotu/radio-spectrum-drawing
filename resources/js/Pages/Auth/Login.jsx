@@ -33,7 +33,7 @@ export default function Login({ status, canResetPassword }) {
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="Email"  className="text-white"/>
 
                     <TextInput
                         id="email"
@@ -50,7 +50,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Пароль" className="text-white" />
 
                     <TextInput
                         id="password"
@@ -74,24 +74,30 @@ export default function Login({ status, canResetPassword }) {
                                 setData('remember', e.target.checked)
                             }
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                        <span className="ms-2 text-sm text-white">
+                            Запомнить меня
                         </span>
                     </label>
                 </div>
 
                 <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
+                    {
+                        /*
+                        canResetPassword && (
+                        
                         <Link
                             href={route('password.request')}
                             className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
                             Forgot your password?
                         </Link>
-                    )}
+                        
+                        )
+                    */
+                    }
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                    <PrimaryButton className="ms-4 rounded-[2px] border-white" disabled={processing}>
+                        Войти
                     </PrimaryButton>
                 </div>
             </form>

@@ -249,15 +249,17 @@ function Edit({ document }) {
 
             <Modal
                 show={activeGroup}
-                onClose={() =>
-                    setActiveGroup(false)
-                }
+                maxWidth="7xl"
+                closeable={false}
             >
                 <UpdateGroup
                     activeGroup={activeGroup}
                     setFrGroups={setFrGroups}
                     frGroups={frGroups}
                     pageWidth={width}
+                    closeCallback={() =>
+                        setActiveGroup(false)
+                    }
                 />
             </Modal>
 
@@ -298,7 +300,6 @@ function Edit({ document }) {
                     <div className="text-black"
                 
                     >
-
                         <SpectrumGroup
                             frGroups={frGroups}
                             setFrGroups={setFrGroups}

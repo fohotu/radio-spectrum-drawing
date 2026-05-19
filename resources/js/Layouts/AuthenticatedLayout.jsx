@@ -7,6 +7,8 @@ import { useState } from 'react';
 
 export default function AuthenticatedLayout({ header, children,sidebar }) {
     const user = usePage().props.auth.user;
+     const { translations } = usePage().props;
+
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -18,12 +20,16 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                     <div className="flex h-16 justify-between">
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
-                                <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
-                                </Link>
+                                {
+                                    /*
+                                        <Link href="/">
+                                            <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                        </Link>
+                                    */
+                                }
                             </div>
 
-                            <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div style={{"display":"none"}} className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <NavLink
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
@@ -34,7 +40,7 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
+                            <div style={{"display":"none"}} className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
@@ -64,20 +70,141 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            { translations.system.profile }
                                         </Dropdown.Link>
                                          <Dropdown.Link
-                                            href={route('radiospectrum.index')}
+                                            href={route('dashboard')}
                                         >
-                                            My Documents
+                                          {  translations.system.my_documents }
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            { translations.system.logout }
                                         </Dropdown.Link>
+                                    </Dropdown.Content>
+                                </Dropdown>
+                            </div>
+
+                            <div className="relative ms-3">
+                                <Dropdown>
+                                    <Dropdown.Trigger>
+                                        <button
+                                            type="button"
+                                            className="
+                                                inline-flex
+                                                items-center
+                                                gap-2
+                                             
+                                                px-4 py-4
+                                                text-sm
+                                                font-medium
+                                                text-gray-200
+                                                shadow-lg
+                                                transition
+                                                hover:bg-gray-800
+                                                hover:text-white
+                                                focus:outline-none
+                                            "
+                                        >
+
+                                            {/* Avatar */}
+                                            <div
+                                                className="
+                                                    flex
+                                                    h-8 w-8
+                                                    items-center
+                                                    justify-center
+                                                    rounded-full
+                                                    bg-blue-600
+                                                    text-xs
+                                                    font-bold
+                                                    uppercase
+                                                    text-white
+                                                "
+                                            >
+                                                {user.name?.charAt(0)}
+                                            </div>
+
+                                            {/* Name */}
+                                            <span className="max-w-[120px] truncate">
+                                                {user.name}
+                                            </span>
+
+                                            {/* Arrow */}
+                                            <svg
+                                                className="h-4 w-4 text-gray-400"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </Dropdown.Trigger>
+
+                                    <Dropdown.Content
+                                        className="
+                                            w-56
+                                            border border-gray-700
+                                            bg-gray-900
+                                            p-2
+                                            shadow-2xl
+                                        "
+                                    >
+
+                                        {/* User Info */}
+                                        <div className="border-b border-gray-200 px-3 pb-3 mb-2">
+                                            <div className="text-sm font-semibold text-white">
+                                                {user.name}
+                                            </div>
+
+                                            <div className="text-xs text-gray-400 truncate">
+                                                {user.email}
+                                            </div>
+                                        </div>
+
+                                        <Dropdown.Link
+                                            href={route('profile.edit')}
+                                            className="
+                                                flex items-center px-3 py-2
+                                                text-sm text-gray-300
+                                                transition hover:bg-gray-800 hover:text-white
+                                            "
+                                        >
+                                            { translations.system.profile }
+                                        </Dropdown.Link>
+
+                                        <Dropdown.Link
+                                            href={route('dashboard')}
+                                            className="
+                                                flex items-center px-3 py-2
+                                                text-sm text-gray-300
+                                                transition hover:bg-gray-800 hover:text-white
+                                            "
+                                        >
+                                            { translations.system.my_documents }
+                                        </Dropdown.Link>
+
+                                        <Dropdown.Link
+                                            href={route('logout')}
+                                            method="post"
+                                            as="button"
+                                            className="
+                                                flex w-full items-center px-3 py-2
+                                                text-sm text-red-400
+                                                transition hover:bg-red-500/10 hover:text-red-300
+                                            "
+                                        >
+                                            { translations.system.logout }
+                                        </Dropdown.Link>
+
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
@@ -192,9 +319,7 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
 
                 {/* Правая панель */}
                 <div style={{"display":"none"}} className="w-full lg:w-[300px] shrink-0 bg-gray-800 p-4 rounded shadow-lg">
-                    <h3 className="text-lg font-semibold mb-3 text-gray-200">
-                        Tools
-                    </h3>
+            
 
                     <div className="space-y-2">
                         {sidebar}
@@ -205,7 +330,7 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                 <div
                     className="
                         w-full
-                        lg:w-[300px]
+                        lg:w-[330px]
                         shrink-0
                         bg-gray-800
                         p-4
@@ -216,9 +341,7 @@ export default function AuthenticatedLayout({ header, children,sidebar }) {
                         overflow-y-auto
                     "
                 >
-                    <h3 className="text-lg font-semibold mb-3 text-gray-200">
-                        Tools
-                    </h3>
+                  
 
                     <div className="space-y-2">
                         {sidebar}

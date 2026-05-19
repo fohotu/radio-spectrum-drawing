@@ -2,8 +2,11 @@ import React from 'react';
 import { Plus, Save, FileUp,Trash2, Copy } from "lucide-react";
 import Editor from './Editor';
 
+import {  usePage } from '@inertiajs/react';
+
 function SelectedRangeForm(props) {
     const {selectedRange,updateField,deleteElement,copyElement} = props;
+    const { translations } = usePage().props;
   return (
     <div>
         {
@@ -58,7 +61,7 @@ function SelectedRangeForm(props) {
                                         </div>
                                     {/* Label */}
                                     <div className="grid grid-cols-2 gap-2">
-                                        <label className="text-sm text-gray-400">Label</label>
+                                        <label className="text-sm text-gray-400">{translations.system.label}</label>
                                         <input
                                             value={selectedRange?.label ?? ""}
                                             onChange={(e) => updateField("label", e.target.value)}
@@ -78,12 +81,12 @@ function SelectedRangeForm(props) {
                                     </div>
 
                                      <div className="grid grid-cols-1 gap-2">
-                                        <label className="text-sm text-gray-400">Description</label>
+                                        <label className="text-sm text-gray-400">{translations.system.description}</label>
                                         <Editor callBack={updateField} defaultValue={selectedRange?.description ?? ""} />
                                     </div>
 
                                     <div>
-                                        <label className="text-sm text-gray-400">Label Left Position</label>
+                                        <label className="text-sm text-gray-400">{translations.system.label_left_position}</label>
                                         <input
                                             type="range"
                                             min="1"
@@ -117,7 +120,7 @@ function SelectedRangeForm(props) {
                                     </div>
 
                                     <div>
-                                        <label className="text-sm text-gray-400">Label Top Position</label>
+                                        <label className="text-sm text-gray-400">{translations.system.label_top_position}</label>
                                         <input
                                             type="range"
                                             min="1"
@@ -153,7 +156,7 @@ function SelectedRangeForm(props) {
 
                                     {/* Rotate */}
                                     <div>
-                                        <label className="text-sm text-gray-400">Rotate Label {selectedRange?.rotate ?? 0}</label>
+                                        <label className="text-sm text-gray-400">{translations.system.rotate_label} {selectedRange?.rotate ?? 0}</label>
                                         <input
                                             type="range"
                                             min="-180"
@@ -176,14 +179,14 @@ function SelectedRangeForm(props) {
                                     </div>
 
                                     <div className="grid grid-cols-4 gap-2 mt-5">
-                                        <label className="text-sm text-gray-400">Bold</label>
+                                        <label className="text-sm text-gray-400">{translations.system.bold_label}</label>
                                         <input
                                             type="checkbox"
                                             value={selectedRange?.bold ?? ""}
                                             onChange={(e) =>{ updateField("bold", e.target.checked) } }
                                             className="p-2 bg-gray-700 rounded"
                                         />
-                                        <label className="text-sm text-gray-400">Cursor {selectedRange?.italic ?? "1"}</label>
+                                        <label className="text-sm text-gray-400">{translations.system.italic_label}</label>
                                         <input
                                             type="checkbox"
                                             value={selectedRange?.italic ?? ""}
@@ -195,7 +198,7 @@ function SelectedRangeForm(props) {
                                 
                                     {/* Position */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Position X</label>
+                                        <label className="text-sm text-gray-400">{translations.system.position_x}</label>
                                         <input
                                             type="number"
                                             value={Number(parseInt(selectedRange?.x || 0))}
@@ -216,7 +219,7 @@ function SelectedRangeForm(props) {
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-2 pt-4">   
-                                        <label className="text-sm text-gray-400 ">Position Y</label>
+                                        <label className="text-sm text-gray-400">{translations.system.position_y}</label>
                                         <input
                                             type="number"
                                             value={Number(parseInt(selectedRange?.y || 0))}
@@ -239,7 +242,7 @@ function SelectedRangeForm(props) {
 
                                     {/* Size */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Width</label>
+                                        <label className="text-sm text-gray-400">{translations.system.width}</label>
                                         <input
                                             type="number"
                                             value={Number(parseInt(selectedRange?.width || 0))}
@@ -261,7 +264,7 @@ function SelectedRangeForm(props) {
                                             "
                                             placeholder="Width"
                                         />
-                                        <label className="text-sm text-gray-400">Height</label>
+                                        <label className="text-sm text-gray-400">{translations.system.height}</label>
                                         <input
                                             type="number"
                                             value={Number(parseInt(selectedRange?.height || 0))}
@@ -284,7 +287,7 @@ function SelectedRangeForm(props) {
 
 
                                      {/* Frame text */}
-                                     <p>Border</p>
+                                     <p>{translations.system.border}</p>
                                     <div className="grid grid-cols-2 gap-2 pt-4">
                                         <label className="text-sm text-gray-400">
                                             
@@ -294,7 +297,7 @@ function SelectedRangeForm(props) {
                                             className="mr-2 p-2 bg-gray-700 rounded"
 
                                             />
-                                           Top
+                                           {translations.system.border_top}
                                         </label>
                                         <input
                                             type="number"
@@ -327,7 +330,7 @@ function SelectedRangeForm(props) {
                                             className="mr-2  p-2 bg-gray-700 rounded"
 
                                             />
-                                           Right
+                                            {translations.system.border_right}
                                         </label>
                                         <input
                                             type="number"
@@ -360,7 +363,7 @@ function SelectedRangeForm(props) {
                                             className="mr-2  p-2 bg-gray-700 rounded"
 
                                             />
-                                           Bottom
+                                           {translations.system.border_bottom}
                                         </label>
                                         <input
                                             type="number"
@@ -393,7 +396,7 @@ function SelectedRangeForm(props) {
                                             className="mr-2  p-2 bg-gray-700 rounded"
 
                                             />
-                                            Left
+                                            {translations.system.border_left}
                                         </label>
                                         <input
                                             type="number"
@@ -418,7 +421,7 @@ function SelectedRangeForm(props) {
                                     </div>
                                      {/* Colors */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Border Color</label>
+                                        <label className="text-sm text-gray-400">{translations.system.border_color}</label>
                                         <input
                                             type="color"
                                             value={selectedRange?.borderColor ?? ""}
@@ -429,7 +432,7 @@ function SelectedRangeForm(props) {
 
                                     {/* Colors */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Background Color</label>
+                                        <label className="text-sm text-gray-400">{translations.system.background_color}</label>
                                         <input
                                             type="color"
                                             value={selectedRange?.bgColor ?? ""}
@@ -438,7 +441,7 @@ function SelectedRangeForm(props) {
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Text Color</label>
+                                        <label className="text-sm text-gray-400">{translations.system.text_color}</label>
                                         <input
                                             type="color"
                                             value={selectedRange?.textColor ?? ""}
@@ -449,7 +452,7 @@ function SelectedRangeForm(props) {
 
                                     {/* Font size */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
-                                        <label className="text-sm text-gray-400">Font Size</label>
+                                        <label className="text-sm text-gray-400">{translations.system.font_size}</label>
                                         
                                         <input
                                             type="number"
@@ -465,7 +468,7 @@ function SelectedRangeForm(props) {
                                     {/* Frame text */}
                                     <div className="grid grid-cols-2 gap-2 pt-4">
                                         <label className="text-sm text-gray-400">
-                                            RF Begin
+                                            {translations.system.fr_begin}
                                             <input type="checkbox"  
                                             checked={selectedRange?.visible_begin ?? false}
                                             onChange={(e) =>{ updateField("visible_begin", e.target.checked) } }
@@ -491,7 +494,7 @@ function SelectedRangeForm(props) {
                                             "
                                             placeholder="fr_begin"
                                         />
-                                        <label className="text-sm text-gray-400">RF End
+                                        <label className="text-sm text-gray-400">{translations.system.fr_end}
                                             <input type="checkbox"  
                                             checked={selectedRange?.visible_end ?? false}
                                             onChange={(e) =>{ updateField("visible_end", e.target.checked) } }
@@ -521,7 +524,7 @@ function SelectedRangeForm(props) {
 
                                     <div className="grid grid-cols-2 gap-2 pt-4">
                                         {/* Frame text size */}
-                                        <label className="text-sm text-gray-400">RF Font Size</label>
+                                        <label className="text-sm text-gray-400">{translations.system.fr_font_size}</label>
                                         <input
                                             type="number"
                                             value={selectedRange?.fr_text_size ?? ""}
@@ -546,7 +549,7 @@ function SelectedRangeForm(props) {
 
                                     <div className="grid grid-cols-2 gap-2 pt-4">
                                         {/* Frame text color */}
-                                        <label className="text-sm text-gray-400">RF Text Color</label>
+                                        <label className="text-sm text-gray-400">{translations.system.fr_text_color}</label>
                                         <input
                                             type="color"
                                             value={selectedRange?.fr_text_color ?? ""}
@@ -559,15 +562,15 @@ function SelectedRangeForm(props) {
 
                                     <div className="grid grid-cols-2 gap-2 pt-4">
                                         {/* Frame text color */}
-                                        <label className="text-sm text-gray-400">RF Text Position</label>
+                                        <label className="text-sm text-gray-400">{translations.system.fr_text_position}</label>
                                         <select 
                                         className="w-full h-10 border-0 p-0 bg-transparent cursor-pointer"
                                         onChange={(e) =>
                                                 updateField("fr_text_position", e.target.value)
                                         }
                                         value={selectedRange?.fr_text_position ?? ""}>
-                                            <option value="top">Top</option>
-                                            <option value="bottom">Bottom</option>
+                                            <option value="top">{translations.system.top}</option>
+                                            <option value="bottom">{translations.system.bottom}</option>
                                         </select>
                                     
                                     </div>
@@ -575,7 +578,7 @@ function SelectedRangeForm(props) {
                                      <div>
                                      
 
-                                        <label className="text-sm text-gray-400">Show Fr Distinction
+                                        <label className="text-sm text-gray-400">{translations.system.show_fr_distinction}
                                             <input type="checkbox"  
                                             checked={selectedRange?.fr_distinction ?? false}
                                             onChange={(e) =>{ updateField("fr_distinction", e.target.checked) } }
@@ -586,7 +589,7 @@ function SelectedRangeForm(props) {
                                     </div>
                                     {/* Rotate */}
                                     <div>
-                                        <label className="text-sm text-gray-400">Fr Text Rotate {selectedRange?.fr_text_rotate ?? 0}</label>
+                                        <label className="text-sm text-gray-400">{translations.system.fr_text_rotate} {selectedRange?.fr_text_rotate ?? 0}</label>
                                         <input
                                             type="range"
                                             min="-180"
@@ -597,27 +600,58 @@ function SelectedRangeForm(props) {
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="text-sm text-gray-400">Fr Text left {selectedRange?.fr_text_left ?? 0}</label>
+                                    
+
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        {/* Frame text size */}
+                                        <label className="text-sm text-gray-400">{translations.system.fr_text_left_position}</label>
                                         <input
-                                            type="range"
-                                            min="-180"
-                                            max="180"
+                                            type="number"
                                             value={selectedRange?.fr_text_left ?? ""}
-                                            onChange={(e) => updateField("fr_text_left", Number(e.target.value))}
-                                            className="w-full"
+                                            onChange={(e) =>
+                                                updateField("fr_text_left", Number(e.target.value))
+                                            }
+                                            className="w-full
+                                                h-10
+                                                bg-gray-800
+                                                text-white
+                                                text-sm
+                                                px-3
+                                                border border-gray-700
+                                                outline-none
+                                                transition
+                                                focus:border-gray-500
+                                                hover:bg-gray-750
+                                            "
+                                            placeholder="Text Size"
                                         />
                                     </div>
 
-                                    <div>
-                                        <label className="text-sm text-gray-400">Fr Text Top {selectedRange?.fr_text_top ?? 0}</label>
+                                   
+
+
+                                    <div className="grid grid-cols-2 gap-2 pt-4">
+                                        {/* Frame text size */}
+                                        <label className="text-sm text-gray-400">{translations.system.fr_text_top_position}</label>
                                         <input
-                                            type="range"
-                                            min="-180"
-                                            max="180"
+                                            type="number"
                                             value={selectedRange?.fr_text_top ?? ""}
-                                            onChange={(e) => updateField("fr_text_top", Number(e.target.value))}
-                                            className="w-full"
+                                            onChange={(e) =>
+                                                updateField("fr_text_top", Number(e.target.value))
+                                            }
+                                            className="w-full
+                                                h-10
+                                                bg-gray-800
+                                                text-white
+                                                text-sm
+                                                px-3
+                                                border border-gray-700
+                                                outline-none
+                                                transition
+                                                focus:border-gray-500
+                                                hover:bg-gray-750
+                                            "
+                                            placeholder="Text Size"
                                         />
                                     </div>
 
